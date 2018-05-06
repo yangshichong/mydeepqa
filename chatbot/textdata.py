@@ -49,7 +49,7 @@ class TextData:
     Warning: No vocabulary limit
     """
 
-    availableCorpus = collections.OrderedDict([  # OrderedDict because the first element is the default choice
+    availableCorpus = collections.OrderedDict([  # 有序字典OrderedDict because the first element is the default choice
         ('cornell', CornellData),
         ('opensubs', OpensubsData),
         ('scotus', ScotusData),
@@ -75,7 +75,7 @@ class TextData:
 
         # Path variables
         self.corpusDir = os.path.join(self.args.rootDir, 'data', self.args.corpus)
-        basePath = self._constructBasePath()
+        basePath = self._constructBasePath()     #qa/deepqa/data/samples/dataset
         self.fullSamplesPath = basePath + '.pkl'  # Full sentences length/vocab
         self.filteredSamplesPath = basePath + '-length{}-filter{}-vocabSize{}.pkl'.format(
             self.args.maxLength,
@@ -94,7 +94,7 @@ class TextData:
         self.id2word = {}  # For a rapid conversion (Warning: If replace dict by list, modify the filtering to avoid linear complexity with del)
         self.idCount = {}  # Useful to filters the words (TODO: Could replace dict by list or use collections.Counter)
 
-        self.loadCorpus()
+        self.loadCorpus()   #将过滤后的语料库载入，更新word2id id2word trainingsamples
 
         # Plot some stats:
         self._printStats()
@@ -109,7 +109,7 @@ class TextData:
         """Return the name of the base prefix of the current dataset
         """
         path = os.path.join(self.args.rootDir, 'data' + os.sep + 'samples' + os.sep)
-        path += 'dataset-{}'.format(self.args.corpus)
+        path += 'dataset-{}'.format(self.args.corpus)  #加上dataset-corpus
         if self.args.datasetTag:
             path += '-' + self.args.datasetTag
         return path
@@ -123,7 +123,7 @@ class TextData:
         pass
 
     def shuffle(self):
-        """Shuffle the training samples
+        """Shuffle 洗牌 the training samples
         """
         print('Shuffling the dataset...')
         random.shuffle(self.trainingSamples)
@@ -171,12 +171,13 @@ class TextData:
 
         # Simple hack to reshape the batch
         encoderSeqsT = []  # Corrected orientation
-        for i in range(self.args.maxLengthEnco):
+        for i in range(self.args.maxLengthEnco):     #每一位都有一个列表
             encoderSeqT = []
             for j in range(batchSize):
-                encoderSeqT.append(batch.encoderSeqs[j][i])
+                encoderSeqT.append(batch.encoderSeqs[j][i])    #该批次中某一位的词id列表
             encoderSeqsT.append(encoderSeqT)
         batch.encoderSeqs = encoderSeqsT
+
 
         decoderSeqsT = []
         targetSeqsT = []
@@ -197,9 +198,19 @@ class TextData:
         batch.weights = weightsT
 
         # # Debug
-        # self.printBatch(batch)  # Input inverted, padding should be correct
-        # print(self.sequence2str(samples[0][0]))
-        # print(self.sequence2str(samples[0][1]))  # Check we did not modified the original sample
+        # print(batch.encoderSeqs)
+        # print(batch.decoderSeqs)
+        # print(batch.targetSeqs)
+        # print(batch.weights)
+        # 分别如下：
+        # [[0], [0], [0], [0], [0], [0], [0], [0], [0], [3]]
+        # [[1], [2], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]
+        # [[2], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]
+        # [[1.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0]]
+
+        self.printBatch(batch)  # Input inverted, padding should be correct
+        # print(self.sequence2str(samples[0][0]))     #打印问句
+        # print(self.sequence2str(samples[0][1]))  # 打印回答Check we did not modified the original sample
 
         return batch
 
@@ -304,7 +315,7 @@ class TextData:
             data = pickle.load(handle)  # Warning: If adding something here, also modifying saveDataset
             self.word2id = data['word2id']
             self.id2word = data['id2word']
-            self.idCount = data.get('idCount', None)
+            self.idCount = data.get('idCount', None)          #找不到返回None
             self.trainingSamples = data['trainingSamples']
 
             self.padToken = self.word2id['<pad>']
@@ -417,7 +428,7 @@ class TextData:
         Save the data on disk. Note that the entire corpus is pre-processed
         without restriction on the sentence length or vocab size.
         """
-        # Add standard tokens
+        # Add standard tokens   pad go eos unknow 刚开始赋值为0,1,2,3
         self.padToken = self.getWordId('<pad>')  # Padding (Warning: first things to add > id=0 !!)
         self.goToken = self.getWordId('<go>')  # Start of sequence
         self.eosToken = self.getWordId('<eos>')  # End of sequence
@@ -441,13 +452,13 @@ class TextData:
         else:
             step = 1
 
-        # Iterate over all the lines of the conversation
+        # Iterate over all the lines of the conversation,conversation就是每个movie_conversation的对应的字典，[lines]是list
         for i in tqdm_wrap(
             range(0, len(conversation['lines']) - 1, step),  # We ignore the last line (no answer for it)
             desc='Conversation',
             leave=False
         ):
-            inputLine  = conversation['lines'][i]
+            inputLine  = conversation['lines'][i]   #是每一个line的字典
             targetLine = conversation['lines'][i+1]
 
             inputWords  = self.extractText(inputLine['text'])
@@ -465,16 +476,17 @@ class TextData:
         """
         sentences = []  # List[List[str]]
 
-        # Extract sentences
+        # Extract sentences  nltk.sent_tokenize(text) #按句子分割
+
         sentencesToken = nltk.sent_tokenize(line)
 
-        # We add sentence by sentence until we reach the maximum length
+        # We add sentence by sentence until we reach the maximum length   nltk.word_tokenize(sentence) #分词
         for i in range(len(sentencesToken)):
-            tokens = nltk.word_tokenize(sentencesToken[i])
+            tokens = nltk.word_tokenize(sentencesToken[i])   #sentencesToken[i]是单句字符串
 
             tempWords = []
             for token in tokens:
-                tempWords.append(self.getWordId(token))  # Create the vocabulary and the training sentences
+                tempWords.append(self.getWordId(token))  # 已将word转化为id Create the vocabulary and the training sentences
 
             sentences.append(tempWords)
 
@@ -499,7 +511,7 @@ class TextData:
         # Get the id if the word already exist
         elif word in self.word2id:
             wordId = self.word2id[word]
-            self.idCount[wordId] += 1
+            self.idCount[wordId] += 1                  #为每个单词出现次数计数
         # If not, we create a new entry
         else:
             wordId = len(self.word2id)
@@ -510,7 +522,9 @@ class TextData:
         return wordId
 
     def printBatch(self, batch):
-        """Print a complete batch, useful for debugging
+        """
+        目前没用
+        Print a complete batch, useful for debugging
         Args:
             batch (Batch): a batch object
         """
@@ -544,8 +558,10 @@ class TextData:
             elif wordId != self.padToken and wordId != self.goToken:
                 sentence.append(self.id2word[wordId])
 
-        if reverse:  # Reverse means input so no <eos> (otherwise pb with previous early stop)
+        if reverse:  # Reverse 反转 means input so no <eos> (otherwise pb with previous early stop)
             sentence.reverse()
+        print(sentence)
+        print(self.detokenize(sentence))     #sentence是列表，detokenize(sentence)是字符串了
 
         return self.detokenize(sentence)
 
@@ -586,7 +602,7 @@ class TextData:
 
         if sentence == '':
             return None
-
+        print(sentence,'++++++')
         # First step: Divide the sentence in token
         tokens = nltk.word_tokenize(sentence)
         if len(tokens) > self.args.maxLength:
@@ -610,9 +626,11 @@ class TextData:
 
         # Choose the words with the highest prediction score
         for out in decoderOutputs:
+            #print(out)
             sequence.append(np.argmax(out))  # Adding each predicted word ids
 
-        return sequence  # We return the raw sentence. Let the caller do some cleaning eventually
+        return sequence  #返回一个这样的列表[215, 25, 504, 22, 2, 22, 2, 22, 2, 22, 2, 22]
+                         # We return the raw sentence. Let the caller do some cleaning eventually
 
     def playDataset(self):
         """Print a random dialogue from the dataset

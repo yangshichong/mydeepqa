@@ -33,7 +33,6 @@ from tensorflow.python import debug as tf_debug
 from chatbot.textdata import TextData
 from chatbot.model import Model
 
-
 class Chatbot:
     """
     Main class which launch the training or testing mode
@@ -62,10 +61,10 @@ class Chatbot:
         self.modelDir = ''  # Where the model is saved
         self.globStep = 0  # Represent the number of iteration for the current model
 
-        # TensorFlow main session (we keep track for the daemon)
+        # TensorFlow main session (we keep track for the daemon) TensorFlow主会话（我们跟踪守护进程）
         self.sess = None
 
-        # Filename and directories constants
+        # Filename and directories constants  文件名和目录常量
         self.MODEL_DIR_BASE = 'save' + os.sep + 'model'
         self.MODEL_NAME_BASE = 'model'
         self.MODEL_EXT = '.ckpt'
@@ -79,6 +78,7 @@ class Chatbot:
     def parseArgs(args):
         """
         Parse the arguments from the given command line
+        解析给定命令行中的参数
         Args:
             args (list<str>): List of arguments to parse. If None, the default sys.argv will be parsed
         """
@@ -116,6 +116,7 @@ class Chatbot:
         datasetArgs.add_argument('--filterVocab', type=int, default=1, help='remove rarelly used words (by default words used only once). 0 to keep all words.')
         datasetArgs.add_argument('--skipLines', action='store_true', help='Generate training samples by only using even conversation lines as questions (and odd lines as answer). Useful to train the network on a particular person.')
         datasetArgs.add_argument('--vocabularySize', type=int, default=40000, help='Limit the number of words in the vocabulary (0 for unlimited)')
+        #action='store_true'默认为FALSE，一旦触发为true
 
         # Network options (Warning: if modifying something here, also make the change on save/loadParams() )
         nnArgs = parser.add_argument_group('Network options', 'architecture related option')
@@ -140,7 +141,7 @@ class Chatbot:
         """
         Launch the training and/or the interactive mode
         """
-        print('Welcome to DeepQA v0.1 !')
+        print('Welcome to MyChatbot!')
         print()
         print('TensorFlow detected: v{}'.format(tf.__version__))
 
@@ -149,13 +150,13 @@ class Chatbot:
         self.args = self.parseArgs(args)
 
         if not self.args.rootDir:
-            self.args.rootDir = os.getcwd()  # Use the current working directory
+            self.args.rootDir = os.getcwd()  # Use the current working directory  '/home/ysc/qa/DeepQA'
 
         #tf.logging.set_verbosity(tf.logging.INFO) # DEBUG, INFO, WARN (default), ERROR, or FATAL
 
         self.loadModelParams()  # Update the self.modelDir and self.globStep, for now, not used when loading Model (but need to be called before _getSummaryName)
 
-        self.textData = TextData(self.args)
+        self.textData = TextData(self.args)   #获得word2id id2word trainingsamples
         # TODO: Add a mode where we can force the input of the decoder // Try to visualize the predictions for
         # each word of the vocabulary / decoder input
         # TODO: For now, the model are trained for a specific dataset (because of the maxLength which define the
@@ -163,10 +164,10 @@ class Chatbot:
         # remap the word2id/id2word variables).
         if self.args.createDataset:
             print('Dataset created! Thanks for using this program')
-            return  # No need to go further
+            return  # No need to go further   只是为了获得处理好的语料库
 
-        # Prepare the model
-        with tf.device(self.getDevice()):
+        # Prepare the model   returns:A context manager that specifies the default device to use for newly created ops.
+        with tf.device(self.getDevice()):    #self.getDevice()返回None   此时model中的op没有指定的device
             self.model = Model(self.args, self.textData)
 
         # Saver/summaries
@@ -199,7 +200,7 @@ class Chatbot:
         if self.args.initEmbeddings:
             self.loadEmbedding(self.sess)
 
-        if self.args.test:
+        if self.args.test:                    #若测试模式分三种情况，否则调用mainTrain(self.sess)函数
             if self.args.test == Chatbot.TestMode.INTERACTIVE:
                 self.mainTestInteractive(self.sess)
             elif self.args.test == Chatbot.TestMode.ALL:
@@ -207,10 +208,10 @@ class Chatbot:
                 self.predictTestset(self.sess)
                 print('All predictions done')
             elif self.args.test == Chatbot.TestMode.DAEMON:
-                print('Daemon mode, running in background...')
+                print('Daemon mode, running in background...')  #守护进程模式
             else:
                 raise RuntimeError('Unknown test mode: {}'.format(self.args.test))  # Should never happen
-        else:
+        else:     #训练
             self.mainTrain(self.sess)
 
         if self.args.test != Chatbot.TestMode.DAEMON:
@@ -225,7 +226,7 @@ class Chatbot:
 
         # Specific training dependent loading
 
-        self.textData.makeLighter(self.args.ratioDataset)  # Limit the number of training samples
+        self.textData.makeLighter(self.args.ratioDataset)  # 没有用Limit the number of training samples
 
         mergedSummaries = tf.summary.merge_all()  # Define the summary operator (Warning: Won't appear on the tensorboard graph)
         if self.globStep == 0:  # Not restoring from previous run
@@ -242,6 +243,7 @@ class Chatbot:
                 print("----- Epoch {}/{} ; (lr={}) -----".format(e+1, self.args.numEpochs, self.args.learningRate))
 
                 batches = self.textData.getBatches()
+
 
                 # TODO: Also update learning parameters eventually
 
@@ -260,7 +262,7 @@ class Chatbot:
                         tqdm.write("----- Step %d -- Loss %.2f -- Perplexity %.2f" % (self.globStep, loss, perplexity))
 
                     # Checkpoint
-                    if self.globStep % self.args.saveEvery == 0:
+                    if self.globStep % self.args.saveEvery == 0:    #saveevery==2000,每2000步一存
                         self._saveSession(sess)
 
                 toc = datetime.datetime.now()
@@ -271,44 +273,44 @@ class Chatbot:
 
         self._saveSession(sess)  # Ultimate saving before complete exit
 
-    def predictTestset(self, sess):
-        """ Try predicting the sentences from the samples.txt file.
-        The sentences are saved on the modelDir under the same name
-        Args:
-            sess: The current running session
-        """
-
-        # Loading the file to predict
-        with open(os.path.join(self.args.rootDir, self.TEST_IN_NAME), 'r') as f:
-            lines = f.readlines()
-
-        modelList = self._getModelList()
-        if not modelList:
-            print('Warning: No model found in \'{}\'. Please train a model before trying to predict'.format(self.modelDir))
-            return
-
-        # Predicting for each model present in modelDir
-        for modelName in sorted(modelList):  # TODO: Natural sorting
-            print('Restoring previous model from {}'.format(modelName))
-            self.saver.restore(sess, modelName)
-            print('Testing...')
-
-            saveName = modelName[:-len(self.MODEL_EXT)] + self.TEST_OUT_SUFFIX  # We remove the model extension and add the prediction suffix
-            with open(saveName, 'w') as f:
-                nbIgnored = 0
-                for line in tqdm(lines, desc='Sentences'):
-                    question = line[:-1]  # Remove the endl character
-
-                    answer = self.singlePredict(question)
-                    if not answer:
-                        nbIgnored += 1
-                        continue  # Back to the beginning, try again
-
-                    predString = '{x[0]}{0}\n{x[1]}{1}\n\n'.format(question, self.textData.sequence2str(answer, clean=True), x=self.SENTENCES_PREFIX)
-                    if self.args.verbose:
-                        tqdm.write(predString)
-                    f.write(predString)
-                print('Prediction finished, {}/{} sentences ignored (too long)'.format(nbIgnored, len(lines)))
+    # def predictTestset(self, sess):
+    #     """ Try predicting the sentences from the samples.txt file.
+    #     The sentences are saved on the modelDir under the same name
+    #     Args:
+    #         sess: The current running session
+    #     """
+    #
+    #     # Loading the file to predict
+    #     with open(os.path.join(self.args.rootDir, self.TEST_IN_NAME), 'r') as f:
+    #         lines = f.readlines()
+    #
+    #     modelList = self._getModelList()
+    #     if not modelList:
+    #         print('Warning: No model found in \'{}\'. Please train a model before trying to predict'.format(self.modelDir))
+    #         return
+    #
+    #     # Predicting for each model present in modelDir
+    #     for modelName in sorted(modelList):  # TODO: Natural sorting
+    #         print('Restoring previous model from {}'.format(modelName))
+    #         self.saver.restore(sess, modelName)
+    #         print('Testing...')
+    #
+    #         saveName = modelName[:-len(self.MODEL_EXT)] + self.TEST_OUT_SUFFIX  # We remove the model extension and add the prediction suffix
+    #         with open(saveName, 'w') as f:
+    #             nbIgnored = 0
+    #             for line in tqdm(lines, desc='Sentences'):
+    #                 question = line[:-1]  # Remove the endl character
+    #
+    #                 answer = self.singlePredict(question)
+    #                 if not answer:
+    #                     nbIgnored += 1
+    #                     continue  # Back to the beginning, try again
+    #
+    #                 predString = '{x[0]}{0}\n{x[1]}{1}\n\n'.format(question, self.textData.sequence2str(answer, clean=True), x=self.SENTENCES_PREFIX)
+    #                 if self.args.verbose:
+    #                     tqdm.write(predString)
+    #                 f.write(predString)
+    #             print('Prediction finished, {}/{} sentences ignored (too long)'.format(nbIgnored, len(lines)))
 
     def mainTestInteractive(self, sess):
         """ Try predicting the sentences that the user will enter in the console
@@ -337,9 +339,9 @@ class Chatbot:
 
             print('{}{}'.format(self.SENTENCES_PREFIX[1], self.textData.sequence2str(answer, clean=True)))
 
-            if self.args.verbose:
-                print(self.textData.batchSeq2str(questionSeq, clean=True, reverse=True))
-                print(self.textData.sequence2str(answer))
+            # if self.args.verbose:
+            #     print(self.textData.batchSeq2str(questionSeq, clean=True, reverse=True))
+            #     print(self.textData.sequence2str(answer))
 
             print()
 
@@ -353,6 +355,8 @@ class Chatbot:
         """
         # Create the input batch
         batch = self.textData.sentence2enco(question)
+        #print(batch)  batch是个对象
+        #print(questionSeq)   不知道questionSeq用来干什么
         if not batch:
             return None
         if questionSeq is not None:  # If the caller want to have the real input
@@ -360,8 +364,16 @@ class Chatbot:
 
         # Run the model
         ops, feedDict = self.model.step(batch)
+        print(ops,'\n')
+        print(feedDict)
         output = self.sess.run(ops[0], feedDict)  # TODO: Summarize the output too (histogram, ...)
+        #print(output[0].type)output[0]是numpy.ndarray
+        #print(output[0].shape)  (1, 24647)   预料库就是24647个词
+        #print(len(output[0]))  1
+        #print(len(output))   12
         answer = self.textData.deco2sentence(output)
+        print (answer)  #12个数字例如[57, 33, 32, 9, 2, 9, 2, 9, 2, 9, 2, 22]
+
 
         return answer
 

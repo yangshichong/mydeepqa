@@ -25,14 +25,14 @@ from chatbot.textdata import Batch
 
 
 class ProjectionOp:
-    """ Single layer perceptron
+    """ Single layer perceptron感知器
     Project input tensor on the output dimension
     """
     def __init__(self, shape, scope=None, dtype=None):
         """
         Args:
             shape: a tuple (input dim, output dim)
-            scope (str): encapsulate variables
+            scope (str): encapsulate variables  封装变量
             dtype: the weights type
         """
         assert len(shape) == 2
@@ -40,7 +40,7 @@ class ProjectionOp:
         self.scope = scope
 
         # Projection on the keyboard
-        with tf.variable_scope('weights_' + self.scope):
+        with tf.variable_scope('weights_' + self.scope):   #TODO tf.variable_scope的作用？
             self.W_t = tf.get_variable(
                 'weights',
                 shape,
@@ -121,7 +121,7 @@ class Model:
             )
 
             def sampledSoftmax(labels, inputs):
-                labels = tf.reshape(labels, [-1, 1])  # Add one dimension (nb of true classes, here 1)
+                labels = tf.reshape(labels, [-1, 1])  # Add one dimension (nb of true classes, here 1) [-1,1]一列，行根据计算
 
                 # We need to compute the sampled_softmax_loss using 32bit floats to
                 # avoid numerical instabilities.
@@ -141,7 +141,7 @@ class Model:
 
         # Creation of the rnn cell
         def create_rnn_cell():
-            encoDecoCell = tf.contrib.rnn.BasicLSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)
+            encoDecoCell = tf.contrib.rnn.BasicLSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)hiddenSize=512
                 self.args.hiddenSize,
             )
             if not self.args.test:  # TODO: Should use a placeholder instead
@@ -152,7 +152,7 @@ class Model:
                 )
             return encoDecoCell
         encoDecoCell = tf.contrib.rnn.MultiRNNCell(
-            [create_rnn_cell() for _ in range(self.args.numLayers)],
+            [create_rnn_cell() for _ in range(self.args.numLayers)],     #两个元素的列表
         )
 
         # Network input (placeholders)
@@ -203,7 +203,7 @@ class Model:
             )
             tf.summary.scalar('loss', self.lossFct)  # Keep track of the cost
 
-            # Initialize the optimizer
+            # Initialize the optimizer    learningRate==0.002
             opt = tf.train.AdamOptimizer(
                 learning_rate=self.args.learningRate,
                 beta1=0.9,
@@ -213,11 +213,11 @@ class Model:
             self.optOp = opt.minimize(self.lossFct)
 
     def step(self, batch):
-        """ Forward/training step operation.
+        """ Forward/training step operation. 步进操作,返回每一个batch的ops, feedDict
         Does not perform run on itself but just return the operators to do so. Those have then to be run
         Args:
             batch (Batch): Input data on testing mode, input and target on output mode
-        Return:
+        Return:运算符
             (ops), dict: A tuple of the (training, loss) operators or (outputs,) in testing mode with the associated feed dictionary
         """
 
@@ -226,7 +226,7 @@ class Model:
         ops = None
 
         if not self.args.test:  # Training
-            for i in range(self.args.maxLengthEnco):
+            for i in range(self.args.maxLengthEnco):   #看到是一位一位地赋值的
                 feedDict[self.encoderInputs[i]]  = batch.encoderSeqs[i]
             for i in range(self.args.maxLengthDeco):
                 feedDict[self.decoderInputs[i]]  = batch.decoderSeqs[i]

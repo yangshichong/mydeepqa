@@ -4,6 +4,7 @@
 	Identity by HTML5 UP
 	html5up.net | @ajlkn
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+	HTML5UP是响应式HTML5和CSS3网站模板
 -->
 <html>
 	<head>
@@ -27,8 +28,10 @@
 						<header>
 							<span class="avatar"><img src="{% static 'images/avatar.jpg' %}" alt="" /></span>
 							<h1>Chatbot</h1>
-							<p>Welcome to this session!</p>
+							<p>Welcome to MyChatbot!</p>
 						</header>
+
+                        <div id="chat_zone"></div>
 						
 						<form id="chat_form">
                             {% csrf_token %}
@@ -42,7 +45,7 @@
 							</div>-->
 						</form>
 						
-						<div id="chat_zone"></div>
+
 						
 						<hr />
 						

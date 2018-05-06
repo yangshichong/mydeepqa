@@ -1,0 +1,74 @@
+Initializing bot...
+Welcome to MyChatbot!
+
+TensorFlow detected: v1.2.0
+
+Warning: Restoring parameters:
+globStep: 20741
+watsonMode: False
+autoEncode: False
+corpus: cornell
+datasetTag: 
+maxLength: 10
+filterVocab: 1
+skipLines: False
+vocabularySize: 40000
+hiddenSize: 512
+numLayers: 2
+softmaxSamples: 0
+initEmbeddings: False
+embeddingSize: 64
+embeddingSource: GoogleNews-vectors-negative300.bin
+
+Loading dataset from /home/ysc/qa/DeepQA/data/samples/dataset-cornell-length10-filter1-vocabSize40000.pkl
+Loaded cornell: 24647 words, 159644 QA
+Model creation...
+2018-04-11 03:04:07.172689: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+2018-04-11 03:04:07.172723: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+2018-04-11 03:04:07.172747: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+2018-04-11 03:04:07.250752: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:893] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-04-11 03:04:07.251028: I tensorflow/core/common_runtime/gpu/gpu_device.cc:940] Found device 0 with properties: 
+name: GeForce GT 740M
+major: 3 minor: 5 memoryClockRate (GHz) 1.0325
+pciBusID 0000:01:00.0
+Total memory: 1.96GiB
+Free memory: 1.82GiB
+2018-04-11 03:04:07.251065: I tensorflow/core/common_runtime/gpu/gpu_device.cc:961] DMA: 0 
+2018-04-11 03:04:07.251077: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 0:   Y 
+2018-04-11 03:04:07.251094: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 740M, pci bus id: 0000:01:00.0)
+Initialize variables...
+WARNING: Restoring previous model from /home/ysc/qa/DeepQA/save/model-server/model.ckpt
+Daemon mode, running in background...
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 11, 2018 - 03:04:07
+Django version 1.10, using settings 'chatbot_website.settings'
+Starting Channels development server at http://127.0.0.1:8000/
+Channel layer default (asgi_redis.core.RedisChannelLayer)
+Quit the server with CONTROL-C.
+2018-04-11 03:04:07,720 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2018-04-11 03:04:07,721 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2018-04-11 03:04:07,723 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2018-04-11 03:04:07,723 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2018-04-11 03:04:07,724 - INFO - server - Using busy-loop synchronous mode on channel layer
+****忙循环同步模式********
+2018-04-11 03:04:07,725 - INFO - server - Listening on endpoint tcp:port=8000:interface=127.0.0.1
+[2018/04/11 03:04:16] HTTP GET / 200 [0.05, 127.0.0.1:38844]
+[2018/04/11 03:04:16] HTTP GET /static/js/jquery-3.1.0.min.js 304 [0.02, 127.0.0.1:38844]
+[2018/04/11 03:04:16] HTTP GET /static/assets/css/main.css 304 [0.03, 127.0.0.1:38846]
+[2018/04/11 03:04:16] HTTP GET /static/js/reconnecting-websocket.js 304 [0.02, 127.0.0.1:38852]
+[2018/04/11 03:04:16] HTTP GET /static/js/chat.js 304 [0.02, 127.0.0.1:38854]
+[2018/04/11 03:04:16] HTTP GET /static/images/avatar.jpg 304 [0.01, 127.0.0.1:38844]
+[2018/04/11 03:04:16] HTTP GET /static/assets/css/font-awesome.min.css 304 [0.02, 127.0.0.1:38846]
+[2018/04/11 03:04:17] HTTP GET /static/assets/css/images/overlay.png 304 [0.03, 127.0.0.1:38852]
+[2018/04/11 03:04:17] HTTP GET /static/images/bg.png 304 [0.06, 127.0.0.1:38854]
+[2018/04/11 03:04:17] WebSocket HANDSHAKING /chat [127.0.0.1:38856]
+New client connected: room-127.0.0.1-38856
+[2018/04/11 03:04:17] WebSocket CONNECT /chat [127.0.0.1:38856]
+([<tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_1/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_3/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_5/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_7/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_9/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_11/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_13/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_15/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_17/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_19/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_21/BiasAdd:0' shape=(?, 24647) dtype=float32>, <tf.Tensor 'embedding_rnn_seq2seq/embedding_rnn_decoder/rnn_decoder/rnn_decoder/output_projection_wrapper/output_projection_wrapper_23/BiasAdd:0' shape=(?, 24647) dtype=float32>],) 
+
+{<tf.Tensor 'placeholder_encoder/Placeholder:0' shape=(?,) dtype=int32>: [0], <tf.Tensor 'placeholder_encoder/Placeholder_1:0' shape=(?,) dtype=int32>: [0], <tf.Tensor 'placeholder_encoder/Placeholder_6:0' shape=(?,) dtype=int32>: [0], <tf.Tensor 'placeholder_decoder/inputs:0' shape=(?,) dtype=int32>: [1], <tf.Tensor 'placeholder_encoder/Placeholder_3:0' shape=(?,) dtype=int32>: [0], <tf.Tensor 'placeholder_encoder/Placeholder_5:0' shape=(?,) dtype=int32>: [0], <tf.Tensor 'placeholder_encoder/Placeholder_4:0' shape=(?,) dtype=int32>: [0], <tf.Tensor 'placeholder_encoder/Placeholder_7:0' shape=(?,) dtype=int32>: [0], <tf.Tensor 'placeholder_encoder/Placeholder_9:0' shape=(?,) dtype=int32>: [215], <tf.Tensor 'placeholder_encoder/Placeholder_2:0' shape=(?,) dtype=int32>: [0], <tf.Tensor 'placeholder_encoder/Placeholder_8:0' shape=(?,) dtype=int32>: [0]}
+room-127.0.0.1-38856: hi -> Hi, captain.
+
+

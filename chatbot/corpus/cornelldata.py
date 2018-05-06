@@ -21,6 +21,7 @@ Load the cornell movie dialog corpus.
 
 Available from here:
 http://www.cs.cornell.edu/~cristian/Cornell_Movie-Dialogs_Corpus.html
+主要用到Python的list和dictionary
 
 """
 
@@ -61,10 +62,10 @@ class CornellData:
 
                 # Extract fields
                 lineObj = {}
-                for i, field in enumerate(fields):
-                    lineObj[field] = values[i]
+                for i, field in enumerate(fields):   #0："lineID",1："characterID":2："movieID":3："character":4："text"
+                    lineObj[field] = values[i]     #每个域对应上值
 
-                lines[lineObj['lineID']] = lineObj
+                lines[lineObj['lineID']] = lineObj     #每个lineID作为键，域值字典作为值
 
         return lines
 
@@ -84,18 +85,18 @@ class CornellData:
 
                 # Extract fields
                 convObj = {}
-                for i, field in enumerate(fields):
+                for i, field in enumerate(fields):     #"character1ID","character2ID","movieID","utteranceIDs"
                     convObj[field] = values[i]
 
-                # Convert string to list (convObj["utteranceIDs"] == "['L598485', 'L598486', ...]")
+                # Convert string to list   (convObj["utteranceIDs"] == "['L598485', 'L598486', ...]")
                 lineIds = ast.literal_eval(convObj["utteranceIDs"])
 
                 # Reassemble lines
-                convObj["lines"] = []
+                convObj["lines"] = []     #convObj增加一个电影lines的域
                 for lineId in lineIds:
-                    convObj["lines"].append(self.lines[lineId])
+                    convObj["lines"].append(self.lines[lineId])    #全部代换成line的字典
 
-                conversations.append(convObj)
+                conversations.append(convObj)    #对话要有顺序所以用list
 
         return conversations
 

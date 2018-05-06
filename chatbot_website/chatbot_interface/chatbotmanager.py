@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class ChatbotManager(AppConfig):
     """ Manage a single instance of the chatbot shared over the website
+    用来对接chatbotmodel的
     """
     name = 'chatbot_interface'
     verbose_name = 'Chatbot Interface'
